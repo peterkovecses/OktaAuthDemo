@@ -5,8 +5,8 @@ Steps:
 - Create an Okta Workforce Identity Cloud registration https://developer.okta.com/signup/
 - Register the application.
 - Set these redirect URIs:
-  https://localhost:7264/authentication/login-callback
-  https://localhost:7264/authentication/logout-callback
+  'https://localhost:7264/authentication/login-callback' and
+  'https://localhost:7264/authentication/logout-callback'
 - In the appsettings, replace OKTADOMAIN and CLIENTID placeholders with the values obtained after registering the application with Okta.
 
 Sign in with GitHub issue
