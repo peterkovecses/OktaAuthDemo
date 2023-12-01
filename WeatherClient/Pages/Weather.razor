@@ -1,0 +1,62 @@
+﻿@page "/weather"
+@using WeatherClient.Models
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject IHttpClientFactory ClientFactory
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (_forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in _forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<WeatherForecast>? _forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var httpClient = ClientFactory.CreateClient("WeatherApi");
+        HttpResponseMessage? response = default;
+        try
+        {
+            response = await httpClient.GetAsync("WeatherForecast");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            // Forced login and page reload
+            exception.Redirect();
+        }
+        response!.EnsureSuccessStatusCode();
+        await using var contentStream = await response.Content.ReadAsStreamAsync();
+        _forecasts = await JsonSerializer.DeserializeAsync<IEnumerable<WeatherForecast>>(contentStream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+    }
+}
